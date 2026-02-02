@@ -41,25 +41,43 @@ class PostScreenState extends State<PostScreen> {
   }
 
   void _sendPost() async {
-    Post newPost = Post(title: "Hello Flutter",
-        body: "This is a test post",
-        userId: 1);
+    Post newPost = Post(
+      title: "Hello Flutter",
+      body: "This is a test post",
+      userId: 1,
+    );
     try {
       Post createdPost = await _repository.createPost(newPost);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Success! Created Post ID: ${createdPost.id}")),
       );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Error creating post")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Error creating post")));
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Demo API")),
+      appBar: AppBar(
+        title: const Text(
+          "Demo API",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.deepPurple, Colors.purpleAccent],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+      ),
+
       body: FutureBuilder<List<Post>>(
         future: _posts,
         builder: (context, snapshot) {
@@ -68,24 +86,59 @@ class PostScreenState extends State<PostScreen> {
           } else if (snapshot.hasError) {
             return Center(child: Text("Error: ${snapshot.error}"));
           } else {
-            return ListView.builder(
-              itemCount: snapshot.data!.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(snapshot.data![index].title, style: const TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: Text(snapshot.data![index].body),
-                );
-              },
+            return Padding(
+              padding: const EdgeInsets.all(12),
+              child: ListView.builder(
+                itemCount: snapshot.data!.length,
+                itemBuilder: (context, index) {
+                  final post = snapshot.data![index];
+
+                  return Card(
+                    elevation: 5,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    margin: const EdgeInsets.only(bottom: 12),
+                    child: Padding(
+                      padding: const EdgeInsets.all(14),
+
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            post.title,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+
+                          const SizedBox(height: 8),
+
+                          Text(
+                            post.body,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
             );
           }
         },
       ),
-      floatingActionButton: FloatingActionButton(
+
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: _sendPost,
-        child: const Icon(Icons.add),
+        icon: const Icon(Icons.add),
+        label: const Text("Create Post"),
+        backgroundColor: Colors.deepPurple,
       ),
     );
   }
 }
-
-
